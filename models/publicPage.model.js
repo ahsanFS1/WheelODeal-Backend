@@ -5,6 +5,10 @@ import mongoose from "mongoose";
 const PublicPageSchema = new mongoose.Schema({
   projectId: {type: String, required: true},
   backgroundColor: { type: String, required: true, default: "#121218" },
+  backgroundImage: {type: String,
+    required: true,
+    default:"https://media.istockphoto.com/id/1434782845/vector/purple-light-defocused-blurred-motion-gradient-abstract-background-vector.jpg?s=612x612&w=0&k=20&c=XdziynSGjaoVCLk9LI1A70ibGgpUi2IZ23PtkOWdjOM="
+  },
   logo: {
     type: String,
     required: true,

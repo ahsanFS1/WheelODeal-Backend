@@ -32,12 +32,12 @@ const MLPSchema = new mongoose.Schema(
         default:
           "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1920&q=80",
       },
-      // logo: {
-      //   type: String,
-      //   required: true,
-      //   default:
-      //     "https://s3.amazonaws.com/www-inside-design/uploads/2019/05/woolmarkimagelogo-1024x576.png",
-      // },
+      logo: {
+        type: String,
+        required: true,
+        default:
+          "https://s3.amazonaws.com/www-inside-design/uploads/2019/05/woolmarkimagelogo-1024x576.png",
+      },
     },
     demo: {
       title: {
@@ -217,7 +217,7 @@ const MLPSchema = new mongoose.Schema(
           },
           {
             id: "pro",
-            name: "Pro Plan",
+            name: "Better",
             price: "$199/year",
             features: ["3 Landing Pages", "Priority Support"],
             buttonText: "Get Started",
@@ -225,6 +225,16 @@ const MLPSchema = new mongoose.Schema(
             buttonTextColor: "FFFFFF",
             buttonLink: "/signup",
           },
+          {
+            id: "best",
+            name: "Best",
+            price: "$349/year",
+            features: ["6 Landing Pages", "Priority Support"],
+            buttonText: "Get Started",
+            buttonColor: "#C33AFF",
+            buttonTextColor: "FFFFFF",
+            buttonLink: "/signup",
+          }
         ],
       },
     },
