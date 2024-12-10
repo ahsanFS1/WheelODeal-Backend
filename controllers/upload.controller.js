@@ -4,17 +4,9 @@ export const uploadFile = (req, res) => {
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    // Extract folder type from query and include in the URL
+    // Use the custom BACKEND_HOST if available, otherwise default to local server
     const folderType = req.query.type || "public";
-    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${folderType}/${req.file.filename}`;
-    // const fileUrl = `${process.env.BACKEND_HOST || req.protocol + "://" + req.get("host")}/uploads/${req.query.type || "mlp"}/${req.file.filename}`;
-    // console.log(fileUrl)
-    
-    // Save fileUrl in the appropriate table
-
-    // if (req.query.type === "mlp") {
-    // Save fileUrl in mlp
-    // }
+    const fileUrl = `${process.env.BACKEND_HOST || `${req.protocol}://${req.get("host")}`}/uploads/${folderType}/${req.file.filename}`;
 
     res.status(200).json({ success: true, url: fileUrl });
   } catch (error) {
