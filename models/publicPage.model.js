@@ -93,6 +93,10 @@ const PublicPageSchema = new mongoose.Schema({
       },
     ],
   },
+  videoId: {
+    type: String,
+    required: false
+  }
 });
 
 const PublicPage = mongoose.model("PublicPage", PublicPageSchema);

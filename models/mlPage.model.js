@@ -4,7 +4,7 @@ const MLPSchema = new mongoose.Schema(
   {
     videoId: {
       type: String,
-      required: true,
+      required: false,
       default: "M7FIvfx5J10",
     },
     hero: {
