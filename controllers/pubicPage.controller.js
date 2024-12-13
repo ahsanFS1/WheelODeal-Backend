@@ -1,45 +1,102 @@
 import PublicPage from '../models/publicPage.model.js';
+import SecretKey from '../models/secretKeys.model.js';
+import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
 
-// Fetch PublicPage configuration by projectId
+// Get all public pages for a specific projectId
 export const getPP = async (req, res) => {
   const { projectId } = req.params;
 
   try {
-    console.log(`Fetching PublicPage for projectId: ${projectId}`);
-    const publicPageData = await PublicPage.findOne({ projectId });
-
-    if (!publicPageData) {
-      console.log(`No PublicPage found for projectId: ${projectId}`);
-      return res.status(404).json({ success: false, message: 'PublicPage not found.' });
+    const pages = await PublicPage.find({ projectId }); // Fetch all public pages for the projectId
+    if (!pages.length) {
+      return res.status(404).json({ success: false, message: "No public pages found for this project." });
     }
 
-    res.status(200).json({ success: true, data: publicPageData });
-    console.log(`Fetched PublicPage for projectId: ${projectId}`);
+    res.status(200).json({ success: true, data: pages });
   } catch (error) {
-    console.error(`Error fetching the PublicPage for projectId: ${projectId}`, error);
-    res.status(500).json({ success: false, message: 'Error fetching the PublicPage data.' });
+    console.error("Error fetching public pages:", error.message);
+    res.status(500).json({ success: false, message: "Error fetching public pages." });
   }
 };
 
+// Create a new public page for a projectId
+export const createPP = async (req, res) => {
+  const { projectId,publicPageName } = req.body;
 
-// Update PublicPage configuration by projectId
+  try {
+    const key = await SecretKey.findOne({ projectId });
+    if (!key || key.remainingPages <= 0) {
+      return res.status(400).json({ success: false, message: "No public pages available for creation." });
+    }
+
+    const newPublicPage = new PublicPage({
+      publicPageId: uuidv4(), // Generate a unique public page ID
+      projectId,
+      publicPageName
+    });
+
+    await newPublicPage.save();
+
+    key.remainingPages -= 1; // Decrement remaining pages
+    await key.save();
+
+    res.status(201).json({ success: true, data: newPublicPage });
+  } catch (error) {
+    console.error("Error creating public page:", error.message);
+    res.status(500).json({ success: false, message: "Error creating public page." });
+  }
+};
+
+// Update public page configuration by publicPageId
 export const updatePP = async (req, res) => {
-  const { projectId } = req.params;
+  const { publicPageId } = req.params;
   const updatedData = req.body;
 
   try {
-    console.log(`Updating PublicPage for projectId: ${projectId}`);
+    console.log(`Updating PublicPage for publicPageId: ${publicPageId}`);
     const publicPageData = await PublicPage.findOneAndUpdate(
-      { projectId },
+      { publicPageId },
       { $set: updatedData },
       { new: true, upsert: true } // Return the updated document; create if it doesn't exist
     );
 
     res.status(200).json({ success: true, data: publicPageData });
-    console.log(`Updated PublicPage for projectId: ${projectId}`);
+    console.log(`Updated PublicPage for publicPageId: ${publicPageId}`);
   } catch (error) {
-    console.error(`Error updating the PublicPage for projectId: ${projectId}`, error);
+    console.error(`Error updating the PublicPage for publicPageId: ${publicPageId}`, error.message);
     res.status(500).json({ success: false, message: 'Error updating the PublicPage data.' });
   }
 };
 
+// Delete a public page by its ID
+export const deletePP = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const publicPage = await PublicPage.findByIdAndDelete(id);
+    if (!publicPage) {
+      return res.status(404).json({ success: false, message: "Public page not found." });
+    }
+    res.status(200).json({ success: true, message: "Public page deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting public page:", error.message);
+    res.status(500).json({ success: false, message: "Error deleting public page." });
+  }
+};
+
+// Get a single public page by its publicPageId
+export const getSinglePublicPage = async (req, res) => {
+  const { publicPageId } = req.params;
+
+  try {
+    const page = await PublicPage.findOne({ publicPageId });
+    if (!page) {
+      return res.status(404).json({ success: false, message: "Public page not found." });
+    }
+
+    res.status(200).json({ success: true, data: page });
+  } catch (error) {
+    console.error("Error fetching public page:", error.message);
+    res.status(500).json({ success: false, message: "Error fetching public page." });
+  }
+};

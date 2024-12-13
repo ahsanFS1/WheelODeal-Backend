@@ -92,7 +92,7 @@ class GoogleAnalyticsClient {
         pageVisited: pageViews, // Include Page Views metric
         spinConversionRate:
           (parseInt(getMetricValue('spin_completed')) /
-            parseInt(getMetricValue('page_loaded'))) *
+            parseInt(getMetricValue('prize_claimed'))) *
           100 || 0,
       };
   

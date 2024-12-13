@@ -14,12 +14,32 @@ export const getSecretKeys = async (req, res) => {
   }
 };
 
+export const getSpecific = async (req, res) => {
+  const { projectId } = req.params;
+  try{
 
+    const key = await SecretKey.find({projectId});
+    if (!key) {
+      return res.status(404).json({ success: false, message: "Public page not found." });
+    }
+    
+    
+    
+    res.status(200).json({ success: true, data: key });
+  }
+  catch (error){
+    console.error("Error fetching secret keys:", error.message);
+    res.status(500).json({ success: false, message: "Error fetching secret keys." });
+  }
+  
+
+
+}
 
 
 // Create a new secret key
 export const createSecretKey = async (req, res) => {
-  const { projectName, plan, expiryDate } = req.body;
+  const { projectName, plan, expiryDate,totalPages,remainingPages } = req.body;
 
   try {
     // Generate a unique projectId by hashing the projectName
@@ -39,15 +59,11 @@ export const createSecretKey = async (req, res) => {
       projectId,
       plan,
       expiryDate,
+      totalPages,remainingPages 
     });
     await newKey.save();
 
-    // Create a new PublicPage with default values and the generated projectId
-    const newPublicPage = new PublicPage({
-      projectId,
-     
-    });
-    await newPublicPage.save();
+    
 
     res.status(201).json({ success: true, data: newKey });
   } catch (error) {
@@ -57,20 +73,29 @@ export const createSecretKey = async (req, res) => {
 };
 
 // Delete a secret key
+// Delete a secret key and associated public page
 export const deleteSecretKey = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Find and delete the secret key
     const key = await SecretKey.findByIdAndDelete(id);
     if (!key) {
       return res.status(404).json({ success: false, message: "Secret key not found." });
     }
-    res.status(200).json({ success: true, message: "Secret key deleted successfully." });
+
+    // Find and delete the associated public page
+    const publicPages = await PublicPage.deleteMany({ projectId: key.projectId });
+    console.log(`${publicPages.deletedCount} public page(s) deleted for projectId ${key.projectId}.`);
+    
+
+    res.status(200).json({ success: true, message: "Secret key and associated public page deleted successfully." });
   } catch (error) {
-    console.error("Error deleting secret key:", error.message);
-    res.status(500).json({ success: false, message: "Error deleting secret key." });
+    console.error("Error deleting secret key or public page:", error.message);
+    res.status(500).json({ success: false, message: "Error deleting secret key and public page." });
   }
 };
+
 
 // Validate a secret key
 export const validateKey = async (req, res) => {
