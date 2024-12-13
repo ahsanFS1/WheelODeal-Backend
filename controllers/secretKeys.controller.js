@@ -1,5 +1,5 @@
 import SecretKey from "../models/secretKeys.model.js";
-
+import PublicPage from "../models/publicPage.model.js";
 import crypto from 'crypto';
 
 
@@ -85,7 +85,7 @@ export const deleteSecretKey = async (req, res) => {
     if (!key) {
       return res.status(404).json({ success: false, message: "Secret key not found." });
     }
-
+    console.log(key)
     // Find and delete the associated public page
     const publicPages = await PublicPage.deleteMany({ projectId: key.projectId });
     console.log(`${publicPages.deletedCount} public page(s) deleted for projectId ${key.projectId}.`);
