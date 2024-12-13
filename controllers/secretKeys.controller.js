@@ -1,5 +1,5 @@
 import SecretKey from "../models/secretKeys.model.js";
-import PublicPage from "../models/publicPage.model.js";
+
 import crypto from 'crypto';
 
 
@@ -59,9 +59,11 @@ export const createSecretKey = async (req, res) => {
       projectId,
       plan,
       expiryDate,
-      totalPages,remainingPages 
+      totalPages,
+      remainingPages,
     });
     await newKey.save();
+    console.log(newKey)
 
     
 
