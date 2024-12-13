@@ -100,3 +100,4 @@ export const getSinglePublicPage = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching public page." });
   }
 };
+

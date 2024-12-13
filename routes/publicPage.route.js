@@ -1,6 +1,6 @@
 import express from 'express';
 import { getPP, createPP, updatePP, deletePP, getSinglePublicPage } from '../controllers/pubicPage.controller.js';
-
+import PublicPage from '../models/publicPage.model.js';
 const router = express.Router();
 
 // Route to get all public pages for a projectId
@@ -17,5 +17,11 @@ router.delete('/:publicPageId', deletePP);
 
 // Route to get a single public page by publicPageId
 router.get('/single/:publicPageId', getSinglePublicPage);
+
+
+
+
+  
+
 
 export default router;

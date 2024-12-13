@@ -5,7 +5,7 @@ import fs from "fs";
 // Dynamic storage configuration based on query parameter
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const folderType = req.query.type || "public"; // Default to "mlp" folder if no type is provided
+    const folderType = req.query.type || "public"; // Default to "public" folder if no type is provided
     const folderPath = `uploads/${folderType}/`;
 
     // Ensure the directory exists
@@ -31,8 +31,29 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-export const uploadImage = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Max size: 5MB
-}).single("image");
+// Dynamic max file size
+export const uploadImage = (req, res, next) => {
+  const maxFileSize = req.query.maxSize *1024 * 1024|| 5 * 1024 * 1024; // Default to 5MB if not provided
+
+  const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: maxFileSize }, // Use dynamic file size
+  }).single("image");
+
+  upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+          success: false,
+          message: `File size exceeds the limit of ${maxFileSize / (1024 * 1024)}MB.`,
+        });
+      }
+    } else if (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    next();
+  });
+};
+
+
