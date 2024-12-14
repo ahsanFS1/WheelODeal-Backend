@@ -23,6 +23,7 @@ const PublicPageSchema = new mongoose.Schema({
     required: true,
     default: "Try your luck and win amazing prizes!",
   },
+  lowerFooter: {type: String, default: "Your Footer"}, 
   footer: {type: String,  default: "<p>Default footer content. Add your <a href='/terms'>terms and conditions</a>.</p>"},
   finalCta: {
     text: { type: String, required: true, default: "Click Me!" }, // Button text
