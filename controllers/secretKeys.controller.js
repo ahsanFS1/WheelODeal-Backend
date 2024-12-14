@@ -98,7 +98,31 @@ export const deleteSecretKey = async (req, res) => {
   }
 };
 
+export const validateProject = async(req,res) => {
 
+  const {projetId} = req.body;
+
+  try{
+
+    const project = await SecretKey.findOne({projectId});
+    if(!project)  
+      {return res.status(404).json({ success: false, message: "Invalid secret key." });
+  }
+  const now = new Date();
+    if (new Date(key.expiryDate) < now) {
+      return res.status(400).json({ success: false, message: "Secret key has expired." });
+    }
+  return res.status(200).json({success: true, message: "Project Found"});
+  
+ 
+
+  }catch (error) {
+    console.error("Error validating secret key:", error.message);
+    res.status(500).json({ success: false, message: "Error validating secret key." });
+  }
+
+
+}
 // Validate a secret key
 export const validateKey = async (req, res) => {
   const { secretKey } = req.body;
