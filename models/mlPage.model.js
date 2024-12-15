@@ -284,7 +284,7 @@ const MLPSchema = new mongoose.Schema(
         default: "30-day money-back guarantee",
       },
     },
-
+    footer:{type: String, required: true, default: "Terms and condition"},
     prizes: {
       type: [
         {

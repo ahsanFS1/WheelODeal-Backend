@@ -37,12 +37,17 @@ class GoogleAnalyticsClient {
       .catch((error) => console.error('Invalid API Credentials:', error.message));
   }
 
+  // Utility function to extract metric values
+  getMetricValue(rows, eventName, metricIndex = 0) {
+    const row = rows.find((r) => r.dimensionValues?.[1]?.value === eventName);
+    return row?.metricValues?.[metricIndex]?.value || '0';
+  }
+
   async getMetrics(pageId, startDate, endDate) {
     try {
       const property = `properties/${process.env.GA_PROPERTY_ID}`;
       console.log(`Fetching metrics for property: ${property}, pageId: ${pageId}, startDate: ${startDate}, endDate: ${endDate}`);
-  
-      // Single query for all metrics and dimensions
+
       const response = await this.analyticsdata.properties.runReport({
         property,
         requestBody: {
@@ -50,9 +55,10 @@ class GoogleAnalyticsClient {
           metrics: [
             { name: 'activeUsers' },
             { name: 'eventCount' },
-            { name: 'screenPageViews' } // Include Page Views
+            { name: 'screenPageViews' },
           ],
           dimensions: [
+            { name: 'date' }, // Include date for time-series data
             { name: 'eventName' },
             { name: 'pagePath' },
           ],
@@ -66,53 +72,56 @@ class GoogleAnalyticsClient {
           },
         },
       });
-  
+
       console.log('API Response:', JSON.stringify(response.data, null, 2));
-  
+
       const rows = response.data.rows || [];
       if (rows.length === 0) {
         console.warn('No data returned for the query. Verify filters and event processing.');
       }
-  
-      // Parse metrics from rows
-      const getMetricValue = (eventName, metricIndex = 0) => {
-        const row = rows.find((row) => row.dimensionValues?.[0]?.value === eventName);
-        return row?.metricValues?.[metricIndex]?.value || '0';
-      };
-  
-      // Separate metric for page views
-      const pageViewsRow = rows.find((row) => row.dimensionValues?.[0]?.value === 'page_loaded');
-      const pageViews = parseInt(pageViewsRow?.metricValues?.[1]?.value || '0');
-  
+
+      // Build time-series history
+      const history = rows.reduce(
+        (acc, row) => {
+          const date = row.dimensionValues?.[0]?.value;
+          const eventName = row.dimensionValues?.[1]?.value;
+          const value = parseInt(row.metricValues?.[1]?.value || '0', 10);
+
+          if (date) {
+            if (!acc.labels.includes(date)) acc.labels.push(date);
+            if (eventName === 'page_loaded') acc.visitors.push(value);
+            if (eventName === 'spin_completed') acc.spins.push(value);
+            if (eventName === 'prize_claimed') acc.conversions.push(value);
+          }
+
+          return acc;
+        },
+        { labels: [], visitors: [], spins: [], conversions: [] }
+      );
+      const pageViews = rows
+      .filter((row) => row.dimensionValues?.[1]?.value === 'page_loaded') // Match 'page_loaded' event
+      .reduce((sum, row) => sum + parseInt(row.metricValues?.[1]?.value || '0', 10), 0); // Sum eventCount
+      // Parse aggregated metrics
       const metrics = {
-        
-        visitors: parseInt(getMetricValue('page_loaded')),
-        spins: parseInt(getMetricValue('spin_completed')),
-        conversions: parseInt(getMetricValue('prize_claimed')),
-        pageVisited: pageViews, // Include Page Views metric
+        visitors: parseInt(this.getMetricValue(rows, 'page_loaded')),
+        spins: parseInt(this.getMetricValue(rows, 'spin_completed')),
+        conversions: parseInt(this.getMetricValue(rows, 'prize_claimed')),
+        pageVisited:pageViews,
         spinConversionRate:
-          (parseInt(getMetricValue('spin_completed')) /
-            parseInt(getMetricValue('prize_claimed'))) *
+          (parseInt(this.getMetricValue(rows, 'spin_completed')) /
+            parseInt(this.getMetricValue(rows, 'prize_claimed'))) *
           100 || 0,
       };
-  
+
       console.log('Parsed Metrics:', metrics);
-      return metrics;
+      console.log('Parsed History:', history);
+
+      return { metrics, history };
     } catch (error) {
       console.error('Error fetching GA4 metrics:', error.response?.data || error.message);
-      return {
-        visitors: 0,
-        spins: 0,
-        conversions: 0,
-        pageVisited: 0, // Default value for Page Visited
-        spinConversionRate: 0,
-      };
+      return { metrics: {}, history: { labels: [], visitors: [], spins: [], conversions: [] } };
     }
   }
-  
-  
-  
-  
 }
 
 export default GoogleAnalyticsClient;
