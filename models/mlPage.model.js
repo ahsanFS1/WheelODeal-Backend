@@ -196,7 +196,8 @@ const MLPSchema = new mongoose.Schema(
           {
             id: { type: String, required: true },
             name: { type: String, required: true },
-            price: { type: String, required: true },
+            monthlyPrice: { type: String, required: true },
+            yearlyPrice: { type: String, required: true },
             features: { type: [String], required: true },
             buttonText: { type: String, required: true },
             buttonColor: { type: String, required: true },
@@ -208,7 +209,8 @@ const MLPSchema = new mongoose.Schema(
           {
             id: "basic",
             name: "Basic Plan",
-            price: "$99/year",
+            monthlyPrice: "$29/month",
+            yearlyPrice: "$99/year",
             features: ["1 Landing Page"],
             buttonText: "Get Started",
             buttonColor: "#C33AFF",
@@ -218,7 +220,8 @@ const MLPSchema = new mongoose.Schema(
           {
             id: "pro",
             name: "Better",
-            price: "$199/year",
+            monthlyPrice: "$69/month",
+            yearlyPrice: "$199/year",
             features: ["3 Landing Pages", "Priority Support"],
             buttonText: "Get Started",
             buttonColor: "#C33AFF",
@@ -228,7 +231,8 @@ const MLPSchema = new mongoose.Schema(
           {
             id: "best",
             name: "Best",
-            price: "$349/year",
+            monthlyPrice: "$99/month",
+            yearlyPrice: "$349/year",
             features: ["6 Landing Pages", "Priority Support"],
             buttonText: "Get Started",
             buttonColor: "#C33AFF",
@@ -290,6 +294,10 @@ const MLPSchema = new mongoose.Schema(
         {
           id: { type: String, required: true },
           text: { type: String, required: true },
+          gradient: { type: Boolean, required: false, default: false }, // Toggle for gradient
+          gradientStart: { type: String, required: false, default: "#6C63FF" }, // Start color for gradient
+          gradientEnd: { type: String, required: false, default: "#4B4AC9" }, // End color for gradient
+          gradientDirection: { type: String, required: false, default: "to right" },      
           color: { type: String, required: true },
           probability: { type: Number, required: true },
           redirectUrl: { type: String, required: true },
@@ -347,6 +355,7 @@ const MLPSchema = new mongoose.Schema(
         },
       ],
     },
+  
   },
   { timestamps: true }
 );

@@ -83,34 +83,59 @@ class GoogleAnalyticsClient {
       // Build time-series history
       const history = rows.reduce(
         (acc, row) => {
-          const date = row.dimensionValues?.[0]?.value;
+          const date = row.dimensionValues?.[0]?.value; // Date as YYYYMMDD
           const eventName = row.dimensionValues?.[1]?.value;
           const value = parseInt(row.metricValues?.[1]?.value || '0', 10);
 
           if (date) {
-            if (!acc.labels.includes(date)) acc.labels.push(date);
-            if (eventName === 'page_loaded') acc.visitors.push(value);
-            if (eventName === 'spin_completed') acc.spins.push(value);
-            if (eventName === 'prize_claimed') acc.conversions.push(value);
-          }
+            if (!acc.labels.includes(date)) {
+              acc.labels.push(date);
+              acc.visitors.push(0);
+              acc.spins.push(0);
+              acc.conversions.push(0);
+            }
 
+            const index = acc.labels.indexOf(date);
+            if (eventName === 'page_loaded') acc.visitors[index] += value;
+            if (eventName === 'spin_completed') acc.spins[index] += value;
+            if (eventName === 'prize_claimed') acc.conversions[index] += value;
+          }
           return acc;
         },
         { labels: [], visitors: [], spins: [], conversions: [] }
       );
+
+      // Sort history by ascending dates
+      const sortedHistory = history.labels
+        .map((label, index) => ({
+          label,
+          visitors: history.visitors[index],
+          spins: history.spins[index],
+          conversions: history.conversions[index],
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)); // Sort by date
+
+      // Rebuild history arrays
+      history.labels = sortedHistory.map((item) => item.label);
+      history.visitors = sortedHistory.map((item) => item.visitors);
+      history.spins = sortedHistory.map((item) => item.spins);
+      history.conversions = sortedHistory.map((item) => item.conversions);
+
+      // Sum all "page_loaded" events for pageVisited
       const pageViews = rows
-      .filter((row) => row.dimensionValues?.[1]?.value === 'page_loaded') // Match 'page_loaded' event
-      .reduce((sum, row) => sum + parseInt(row.metricValues?.[1]?.value || '0', 10), 0); // Sum eventCount
+        .filter((row) => row.dimensionValues?.[1]?.value === 'page_loaded')
+        .reduce((sum, row) => sum + parseInt(row.metricValues?.[1]?.value || '0', 10), 0);
+
       // Parse aggregated metrics
       const metrics = {
         visitors: parseInt(this.getMetricValue(rows, 'page_loaded')),
         spins: parseInt(this.getMetricValue(rows, 'spin_completed')),
         conversions: parseInt(this.getMetricValue(rows, 'prize_claimed')),
-        pageVisited:pageViews,
+        pageVisited: pageViews,
         spinConversionRate:
-          (parseInt(this.getMetricValue(rows, 'spin_completed')) /
-            parseInt(this.getMetricValue(rows, 'prize_claimed'))) *
-          100 || 0,
+        ( (parseInt(this.getMetricValue(rows, 'prize_claimed'))) /
+            (parseInt(this.getMetricValue(rows, 'spin_completed')) )) *
+          100 ,
       };
 
       console.log('Parsed Metrics:', metrics);

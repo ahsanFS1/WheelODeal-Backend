@@ -31,6 +31,10 @@ const PublicPageSchema = new mongoose.Schema({
     size: { type: String, required: true, default: "medium" }, // Button size: small, medium, large
     textColor: { type: String, required: true, default: "#FFFFFF" }, // Text color
     backgroundColor: { type: String, required: true, default: "#6C63FF" }, // Button background color
+    gradient: { type: Boolean, required: false, default: false }, // Toggle for gradient
+    gradientStart: { type: String, required: false, default: "#6C63FF" }, // Start color for gradient
+    gradientEnd: { type: String, required: false, default: "#4B4AC9" }, // End color for gradient
+    gradientDirection: { type: String, required: false, default: "to right" },
     hoverColor: { type: String, required: false, default: "#4B4AC9" }, // Optional hover effect color
   },
   
@@ -39,6 +43,10 @@ const PublicPageSchema = new mongoose.Schema({
       {
         id: { type: String, required: true },
         text: { type: String, required: true },
+        gradient: { type: Boolean, required: false, default: false }, // Toggle for gradient
+        gradientStart: { type: String, required: false, default: "#6C63FF" }, // Start color for gradient
+        gradientEnd: { type: String, required: false, default: "#4B4AC9" }, // End color for gradient
+        gradientDirection: { type: String, required: false, default: "to right" },    
         color: { type: String, required: true },
         probability: { type: Number, required: true },
         redirectUrl: { type: String, required: true },
@@ -132,6 +140,17 @@ const PublicPageSchema = new mongoose.Schema({
   videoId: {
     type: String,
     required: false,
+  },
+  musicEnabled: {type: Boolean, required: true, default: true},
+  wheelButton: {
+    text: {type: String, required: true, default: "SPIN"},
+    textColor: { type: String, required: true, default: "#FFFFFF" }, // Text color
+    backgroundColor: { type: String, required: true, default: "#6C63FF" }, // Button background color
+    gradient: { type: Boolean, required: false, default: false }, // Toggle for gradient
+    gradientStart: { type: String, required: false, default: "#6C63FF" }, // Start color for gradient
+    gradientEnd: { type: String, required: false, default: "#4B4AC9" }, // End color for gradient
+    gradientDirection: { type: String, required: false, default: "to right" },
+    
   },
 });
 
