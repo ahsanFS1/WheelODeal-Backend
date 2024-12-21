@@ -70,19 +70,34 @@ export const updatePP = async (req, res) => {
 
 // Delete a public page by its ID
 export const deletePP = async (req, res) => {
-  const { id } = req.params;
+  const { publicPageId } = req.params; // Extract publicPageId from request params
+  
+  console.log("Deleting page with publicPageId:", publicPageId);
 
   try {
-    const publicPage = await PublicPage.findByIdAndDelete(id);
-    if (!publicPage) {
+    // Find the public page using publicPageId
+    const publicPageData = await PublicPage.findOne({ publicPageId: publicPageId});
+
+    if (!publicPageData) {
       return res.status(404).json({ success: false, message: "Public page not found." });
     }
+    const key = await SecretKey.findOne({ projectId: publicPageData.projectId });
+    // Use the _id of the document to delete it
+    const publicPage = await PublicPage.findByIdAndDelete(publicPageData._id);
+    
+
+    if (!publicPage) {
+      return res.status(404).json({ success: false, message: "Error deleting public page." });
+    }
+    key.remainingPages+=1;
+    await key.save();
     res.status(200).json({ success: true, message: "Public page deleted successfully." });
   } catch (error) {
     console.error("Error deleting public page:", error.message);
     res.status(500).json({ success: false, message: "Error deleting public page." });
   }
 };
+
 
 // Get a single public page by its publicPageId
 export const getSinglePublicPage = async (req, res) => {

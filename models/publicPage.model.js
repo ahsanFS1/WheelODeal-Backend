@@ -2,15 +2,19 @@ import mongoose from "mongoose";
 
 const PublicPageSchema = new mongoose.Schema({
   publicPageId: { type: String, required: true, unique: true },
-  publicPageName: { type: String, required: true, unique: true },
+  publicPageName: { type: String, required: true },
   projectId: { type: String, required: true },
   backgroundColor: { type: String, required: true, default: "#121218" },
   backgroundImage: {
     type: String,
     required: true,
     default:
-      "https://media.istockphoto.com/id/1434782845/vector/purple-light-defocused-blurred-motion-gradient-abstract-background-vector.jpg?s=612x612&w=0&k=20&c=XdziynSGjaoVCLk9LI1A70ibGgpUi2IZ23PtkOWdjOM=",
-  },
+      "https://backend071.wheelodeal.com/uploads/publicpage/1734642048779-Gala-background.jpg"},
+      mobileBackgroundImage: {
+        type: String,
+        required: true,
+        default:
+          "https://backend071.wheelodeal.com/uploads/publicpage/1734642048779-Gala-background.jpg"},
   logo: {
     type: String,
     required: true,
@@ -58,7 +62,7 @@ const PublicPageSchema = new mongoose.Schema({
     default: [
       {
         id: "1",
-        text: "Free Coffee",
+        text: "Edit Deal",
         color: "#5B04E9",
         probability: 0.2,
         redirectUrl: "https://example.com/free-coffee",
@@ -68,7 +72,7 @@ const PublicPageSchema = new mongoose.Schema({
       },
       {
         id: "2",
-        text: "Discount Voucher",
+        text: "Edit Deal",
         color: "#9800EB",
         probability: 0.3,
         redirectUrl: "https://example.com/discount-voucher",
@@ -78,7 +82,7 @@ const PublicPageSchema = new mongoose.Schema({
       },
       {
         id: "3",
-        text: "Gift Card",
+        text: "Edit Deal",
         color: "#5B04E9",
         probability: 0.1,
         redirectUrl: "https://example.com/gift-card",
@@ -88,7 +92,7 @@ const PublicPageSchema = new mongoose.Schema({
       },
       {
         id: "4",
-        text: "T-Shirt",
+        text: "Edit Deal",
         color: "#9800EB",
         probability: 0.15,
         redirectUrl: "https://example.com/tshirt",
@@ -98,7 +102,7 @@ const PublicPageSchema = new mongoose.Schema({
       },
       {
         id: "5",
-        text: "Free Lunch",
+        text: "Edit Deal",
         color: "#5B04E9",
         probability: 0.25,
         redirectUrl: "https://example.com/free-lunch",
@@ -108,7 +112,7 @@ const PublicPageSchema = new mongoose.Schema({
       },
       {
         id: "6",
-        text: "Free Watch",
+        text: "Edit Deal",
         color: "#9800EB",
         probability: 0.25,
         redirectUrl: "https://example.com/free-watch",

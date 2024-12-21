@@ -13,7 +13,28 @@ export const getSecretKeys = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching secret keys." });
   }
 };
+export const extendExpiryDate = async (req, res) => {
+  const { id } = req.params;  // The id of the secret key to update
+  const { newExpiryDate } = req.body;  // The new expiry date to set
 
+  try {
+    // Find the secret key by id and update the expiryDate
+    const updatedKey = await SecretKey.findByIdAndUpdate(
+      id,
+      { expiryDate: newExpiryDate },
+      { new: true } // This will return the updated document
+    );
+
+    if (!updatedKey) {
+      return res.status(404).json({ success: false, message: "Secret key not found." });
+    }
+
+    res.status(200).json({ success: true, data: updatedKey, message: "Expiry date extended successfully." });
+  } catch (error) {
+    console.error("Error extending expiry date:", error.message);
+    res.status(500).json({ success: false, message: "Error extending expiry date." });
+  }
+};
 export const getSpecific = async (req, res) => {
   const { projectId } = req.params;
   try{
