@@ -44,6 +44,7 @@ const MLPSchema = new mongoose.Schema(
           "https://s3.amazonaws.com/www-inside-design/uploads/2019/05/woolmarkimagelogo-1024x576.png",
       },
     },
+    accessibilityOn: {type: Boolean, required:false, default: true},
     demo: {
       title: {
         type: String,
