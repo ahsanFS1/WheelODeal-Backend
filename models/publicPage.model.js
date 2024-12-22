@@ -5,6 +5,7 @@ const PublicPageSchema = new mongoose.Schema({
   publicPageName: { type: String, required: true },
   projectId: { type: String, required: true },
   backgroundColor: { type: String, required: true, default: "#121218" },
+  accessibilityOn: {type: Boolean, required: true, default: true},
   backgroundImage: {
     type: String,
     required: true,

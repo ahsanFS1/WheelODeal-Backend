@@ -39,6 +39,9 @@ router.put('/keys/:id', async (req, res) => {
       return res.status(500).json({ success: false, message: 'Server error' });
     }
   });
+  
+  
+
   router.put('/keys/plan/:id', async (req, res) => {
     try {
       const { plan, projectId } = req.body; // Get plan and projectId from the request body
@@ -61,14 +64,14 @@ router.put('/keys/:id', async (req, res) => {
       // Determine the new total pages based on the new plan
       const newTotalPages = planToTotalPages[plan];
   
-      // Fetch all public pages related to the projectId (using projectId instead of secretKeyId)
+      // Fetch all public pages related to the projectId
       const publicPages = await PublicPage.find({ projectId: projectId });
   
       // Calculate the total number of public pages
       const totalPagesInProject = publicPages.length;
   
-      // If the total public pages exceed the new totalPages limit, delete the excess pages
-      if (totalPagesInProject > newTotalPages) {
+      // Handle downgrading: Delete excess pages if the new total pages are less than existing public pages
+      if (newTotalPages < totalPagesInProject) {
         const excessPages = totalPagesInProject - newTotalPages;
   
         // Get the excess public pages and delete them (keep the first ones and delete the rest)
@@ -76,11 +79,13 @@ router.put('/keys/:id', async (req, res) => {
         await PublicPage.deleteMany({ _id: { $in: pagesToDelete.map(page => page._id) } });
       }
   
-      // Update the totalPages and remainingPages counts in the SecretKey model
-      secretKey.totalPages = newTotalPages;
-      secretKey.remainingPages = 0; // Set remainingPages to 0 as we've handled the deletion
+      // Handle upgrading: Increase totalPages, no need to delete public pages
+      // Note: If totalPages is increased, remainingPages should be recalculated if needed
+      const newRemainingPages = Math.max(newTotalPages - totalPagesInProject, 0);
   
-      // Update the plan in the SecretKey model
+      // Update the SecretKey model
+      secretKey.totalPages = newTotalPages;
+      secretKey.remainingPages = newRemainingPages; // Recalculate remaining pages
       secretKey.plan = plan;
   
       // Save the updated key
