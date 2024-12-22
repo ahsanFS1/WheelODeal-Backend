@@ -1,7 +1,8 @@
 import express from "express";
 import {getSpecific, getSecretKeys, createSecretKey, deleteSecretKey, validateKey, validateProject } from "../controllers/secretKeys.controller.js";
 import { extendExpiryDate } from "../controllers/secretKeys.controller.js";
-import SecretKeyModel from "../models/secretKeys.model.js"
+import SecretKeyModel from "../models/secretKeys.model.js";
+import PublicPage from "../models/publicPage.model.js";
 const router = express.Router();
 
 // Get all keys
@@ -38,4 +39,59 @@ router.put('/keys/:id', async (req, res) => {
       return res.status(500).json({ success: false, message: 'Server error' });
     }
   });
+  router.put('/keys/plan/:id', async (req, res) => {
+    try {
+      const { plan, projectId } = req.body; // Get plan and projectId from the request body
+      const { id } = req.params; // The id of the secret key from the URL parameter
+  
+      // Plan to total pages mapping
+      const planToTotalPages = {
+        basic: 1,
+        better: 3,
+        best: 6
+      };
+  
+      // Find the secret key by ID
+      const secretKey = await SecretKeyModel.findById(id);
+  
+      if (!secretKey) {
+        return res.status(404).json({ success: false, message: 'Key not found' });
+      }
+  
+      // Determine the new total pages based on the new plan
+      const newTotalPages = planToTotalPages[plan];
+  
+      // Fetch all public pages related to the projectId (using projectId instead of secretKeyId)
+      const publicPages = await PublicPage.find({ projectId: projectId });
+  
+      // Calculate the total number of public pages
+      const totalPagesInProject = publicPages.length;
+  
+      // If the total public pages exceed the new totalPages limit, delete the excess pages
+      if (totalPagesInProject > newTotalPages) {
+        const excessPages = totalPagesInProject - newTotalPages;
+  
+        // Get the excess public pages and delete them (keep the first ones and delete the rest)
+        const pagesToDelete = publicPages.slice(newTotalPages); // Delete the pages beyond the allowed total pages
+        await PublicPage.deleteMany({ _id: { $in: pagesToDelete.map(page => page._id) } });
+      }
+  
+      // Update the totalPages and remainingPages counts in the SecretKey model
+      secretKey.totalPages = newTotalPages;
+      secretKey.remainingPages = 0; // Set remainingPages to 0 as we've handled the deletion
+  
+      // Update the plan in the SecretKey model
+      secretKey.plan = plan;
+  
+      // Save the updated key
+      const updatedKey = await secretKey.save();
+  
+      // Send the updated key in the response
+      return res.json({ success: true, data: updatedKey });
+    } catch (error) {
+      console.error('Error updating plan:', error);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  });
+  
   export default router;

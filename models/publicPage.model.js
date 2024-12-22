@@ -126,20 +126,11 @@ const PublicPageSchema = new mongoose.Schema({
     type: [
       {
         url: { type: String, required: true },
-        alt: { type: String, required: true },
+        alt: { type: String, required: false },
       },
     ], // Array of carousel image subdocuments
-    required: true,
-    default: [
-      {
-        url: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=1920&q=80",
-        alt: "Prize showcase 1",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1920&q=80",
-        alt: "Prize showcase 2",
-      },
-    ],
+    required: false,
+   
   },
   videoId: {
     type: String,
