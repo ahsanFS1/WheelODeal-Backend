@@ -13,9 +13,12 @@ const storage = multer.diskStorage({
 
     cb(null, folderPath);
   },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
+ filename: (req, file, cb) => {
+  // Replace spaces with underscores or URL-encode the filename
+  const encodedFilename = file.originalname.replace(/\s+/g, '_'); // Replaces spaces with underscores
+  // Alternatively, you could use: const encodedFilename = encodeURIComponent(file.originalname);
+  cb(null, `${Date.now()}-${encodedFilename}`);
+}
 });
 
 // File filter to allow only images
