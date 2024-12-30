@@ -44,6 +44,40 @@ const MLPSchema = new mongoose.Schema(
           "https://s3.amazonaws.com/www-inside-design/uploads/2019/05/woolmarkimagelogo-1024x576.png",
       },
     },
+    floatingWidget: {
+      enabled: { type: Boolean, required: false, default: true },
+      text: { type: String, required: true, default: "Special Offer!" },
+      link: { type: String, required: true, default: "#pricing" },
+      gradientStart: { type: String, required: false, default: "#C33AFF" },
+      gradientEnd: { type: String, required: false, default: "#7B1FA2" },
+      position: {
+        side: { type: String, required: false, default: "right", enum: ["left", "right"] },
+        offset: { type: Number, required: false, default: 0 },
+        topOffset: { type: Number, required: false, default: 50 }
+      }
+    },
+    carousel: {
+      title: { type: String, required: true, default: "Product Showcase" },
+      images: { 
+        type: [{
+          url: { type: String, required: true },
+          alt: { type: String, required: true }
+        }], 
+        required: true, 
+        default: [] 
+      },
+      ctaButton: {
+        text: { type: String, required: true, default: "Learn More" },
+        link: { type: String, required: true, default: "#" },
+        color: { type: String, required: true, default: "#C33AFF" },
+        textColor: { type: String, required: true, default: "#FFFFFF" },
+        glowColor: { type: String, required: true, default: "#C33AFF" },
+        isGradient: { type: Boolean, required: false, default: false },
+        gradientStart: { type: String, required: false, default: "#C33AFF" },
+        gradientEnd: { type: String, required: false, default: "#7B1FA2" },
+        gradientDirection: { type: String, required: false, default: "to right" }
+      }
+    },
     accessibilityOn: {type: Boolean, required:false, default: true},
     demo: {
       title: {
@@ -222,6 +256,7 @@ const MLPSchema = new mongoose.Schema(
             monthlyplanText: { type: String, required: true, default: "Billed Monthly" },
             yearlyPlanText: { type: String, required: true, default: "Billed Yearly" },
             planText: { type: String, required: true, default: "Save 33%" },
+            planTextBelow: { type: String, required: true, default: "Save A Lot with Yearly Plans" }
           },
         ],
         default: [
