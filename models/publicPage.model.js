@@ -123,6 +123,8 @@ const PublicPageSchema = new mongoose.Schema({
       },
     ],
   },
+  googlePixelId: {type: String, required: false},
+  facebookPixelId: {type : String , required: false},
   carouselImages: {
     type: [
       {
