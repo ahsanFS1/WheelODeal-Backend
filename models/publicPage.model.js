@@ -139,6 +139,7 @@ const PublicPageSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  automateExpiry: { type: Boolean, required: true, default: false },
   musicEnabled: {type: Boolean, required: true, default: true},
   wheelButton: {
     text: {type: String, required: true, default: "SPIN"},

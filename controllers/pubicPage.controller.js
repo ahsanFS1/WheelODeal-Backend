@@ -1,7 +1,7 @@
 import PublicPage from '../models/publicPage.model.js';
 import SecretKey from '../models/secretKeys.model.js';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuidv4 is imported
-
+import cron from 'node-cron';
 // Get all public pages for a specific projectId
 export const getPP = async (req, res) => {
   const { projectId } = req.params;
@@ -19,6 +19,38 @@ export const getPP = async (req, res) => {
   }
 };
 
+
+
+// Schedule the cron job to run every 2 hours (at the start of every 2nd hour)
+cron.schedule('10 */2 * * *', async () => {
+  console.log('Running cron job to renew expired prizes...');
+  
+  try {
+    // Find all public pages where autoRenewal is true
+    const pagesToCheck = await PublicPage.find({ automateExpiry: true });
+    
+    // Loop through each page and check for expired prizes
+    for (const page of pagesToCheck) {
+      // Check if the page has prizes and if any prize is expired
+      page.prizes.forEach(async (prize) => {
+        const now = new Date();
+        
+        // If the prize has expired, renew it by adding 2 hours to its expiration date
+        if (new Date(prize.expirationDate) < now) {
+          prize.expirationDate = new Date(now.getTime() + 2 * 60 * 60 * 1000); // Add 2 hours
+          console.log(`Renewed prize "${prize.text}" for publicPageId: ${page.publicPageId}. New expiration: ${prize.expirationDate}`);
+        }
+      });
+
+      // Save the updated page with renewed prizes
+      await page.save();
+    }
+    
+    console.log('Cron job completed.');
+  } catch (error) {
+    console.error('Error running cron job:', error.message);
+  }
+});
 // Create a new public page for a projectId
 export const createPP = async (req, res) => {
   const { projectId,publicPageName } = req.body;
